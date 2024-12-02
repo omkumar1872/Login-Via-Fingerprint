@@ -3,6 +3,9 @@ package com.login.controller;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.login.vo.UserInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +31,7 @@ import jakarta.validation.Valid;
 @RequestMapping("/api/public")
 public class AuthController{
 
+	private static final Logger log = LoggerFactory.getLogger(AuthController.class);
 	@Autowired
 	UserRepository userRepository;
 	
@@ -94,9 +98,16 @@ public class AuthController{
 	@PostMapping("/login")
 	public ResponseEntity<List<Message>> login(@RequestBody User user ,@RequestParam(value = "agreement", defaultValue = "false") boolean rememberMe, Model model) {
 		List<Message> msgList = new ArrayList<Message>();
-		if(user.getEmail() == null )
-		try {
 
+		if(user.getEmail() == null || user.getEmail().isEmpty())
+			return new ResponseEntity<List<Message>>(msgList, HttpStatus.BAD_REQUEST);
+		try {
+			User result = userRepository.findByEmail(user.getEmail());
+			if (result == null) {
+				throw new Exception("User Not Found");
+			} else if (!passwordEncoder.matches(user.getPassword(), result.getPassword())) {
+				throw new Exception("Invalid Password");
+			}
 		} catch (Exception e2) {
 			// TODO: handle exception
 			System.err.println("Error: "+e2.getMessage());
@@ -116,5 +127,24 @@ public class AuthController{
 	public String loginFail(HttpServletResponse response) {
 		response.setStatus(401);
 		return "login_fail";
+	}
+
+	@GetMapping("/user")
+	public ResponseEntity<UserInfo> getUser(@RequestParam("email") String email) {
+		User user = userRepository.findByEmail(email);
+
+		log.info("email: "+email);
+		if(user == null) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+		UserInfo userInfo = new UserInfo();
+		userInfo.setName(user.getName());
+		userInfo.setEmail(user.getEmail());
+		userInfo.setCredentialId("testID");
+		userInfo.setRole(user.getRole());
+		userInfo.setEnabled(user.isEnabled());
+		userInfo.setImageURl(user.getImageURl());
+		userInfo.setAbout(user.getAbout());
+		return new ResponseEntity<>(userInfo, HttpStatus.OK);
 	}
 }
