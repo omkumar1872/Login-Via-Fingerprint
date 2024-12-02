@@ -3,25 +3,25 @@ body{
 }
 
 .bg-primary{
-	background: #009688 !important;
+	background: rgb(34, 28, 53) !important;
 }
 .text-primary{
-	color:#009688 !important;
+	color:rgb(34, 28, 53) !important;
 }
 .text-primary:hover{
-	color:#007188 !important;
+	color:rgb(34, 28, 53) !important;
 }
 .input-primary:checked{
-	background-color:#009688 !important;
+	background-color:rgb(34, 28, 53) !important;
 }
 .nav-link{
-	color:#009688;
+	color:rgb(34, 28, 53);
 }
 .nav-link:hover{
-	color:#007188;
+	color:rgb(34, 28, 53);
 }
 .nav-link.active{
-	background: #009688 !important;
+	background: rgb(34, 28, 53) !important;
 }
 
 .spinner-grow.hidden{

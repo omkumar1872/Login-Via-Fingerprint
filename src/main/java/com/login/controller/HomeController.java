@@ -13,7 +13,7 @@ import com.login.entities.User;
 @Controller
 public class HomeController {
 
-	@GetMapping("/api/public/home")
+	@GetMapping("/api/home")
 	public String getHomePage(Model model) {
 		model.addAttribute("title", "Home Page");
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

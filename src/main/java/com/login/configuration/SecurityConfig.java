@@ -46,7 +46,7 @@ public class SecurityConfig {
 							.requestMatchers("/**").permitAll()
 							.anyRequest().authenticated();
 			}).formLogin(login -> {
-				login.loginPage("/api/public/home")
+				login.loginPage("/api/login")
 				.loginProcessingUrl("/login")
 				.defaultSuccessUrl("/api/user/index")
 				.failureUrl("/api/public/login_fail")

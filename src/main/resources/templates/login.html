@@ -6,9 +6,10 @@
 </head>
 <body>
 
-<section class="container d-flex justify-content-center align-items-center" style="margin-top: 10rem">
+<section class="container d-flex justify-content-center align-items-center" style="margin-top: 3rem">
 		<div class="offcanvas-body d-flex flex-column mx-5" style="margin: auto 200px">
 			<div class="authentication" style="width: 500px; margin: auto;">
+				<h1 class="display-4 text-center py-5">Login Via Fingerprint</h1>
 				<!-- Pills navs -->
 				<ul class="nav nav-pills nav-justified mb-3" id="pills-tab" role="tablist" style="gap:100px;">
 					<li class="nav-item " role="presentation" style="border: 1px solid; border-radius: 5px;">
@@ -26,26 +27,7 @@
 				<!-- Pills content -->
 				<div class="tab-content" id="myTabContent">
 					<div class="tab-pane fade show active" id="pills-login" role="tabpanel" aria-labelledby="tab-login" style="margin-top:40px;">
-						<form class="login" name="login"> <!-- th:action="@{/api/public/home}" method="post" -->
-<!--							<div class="text-center mb-3">-->
-<!--								<p>Sign in with:</p>-->
-<!--								<button type="button" class="btn text-primary btn-floating mx-1">-->
-<!--									<i class="fab fa-facebook-f"></i>-->
-<!--								</button>-->
-
-<!--								<button type="button" class="btn text-primary btn-floating mx-1">-->
-<!--									<i class="fab fa-google"></i>-->
-<!--								</button>-->
-
-<!--								<button type="button" class="btn text-primary btn-floating mx-1">-->
-<!--									<i class="fab fa-twitter"></i>-->
-<!--								</button>-->
-
-<!--								<button type="button" class="btn text-primary btn-floating mx-1">-->
-<!--									<i class="fab fa-github"></i>-->
-<!--								</button>-->
-<!--							</div>-->
-
+						<form class="login" name="login">
 							<!-- Email input -->
 							<div class="form-outline mb-4 form-floating">
 								<input type="email" id="loginName" name="username" class="form-control"
