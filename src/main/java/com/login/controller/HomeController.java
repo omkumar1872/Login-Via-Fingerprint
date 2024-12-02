@@ -40,4 +40,9 @@ public class HomeController {
 		return "/user/index";
 	}
 
+	@GetMapping("/api/login")
+	public String getLoginPage() {
+		return "login";
+	}
+
 }

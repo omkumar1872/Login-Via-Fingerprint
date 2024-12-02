@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{base::layout(~{::section})}">
+<head>
+	<meta charset="UTF-8" />
+	<title>Login Page</title>
+</head>
+<body>
+
+<section class="container d-flex justify-content-center align-items-center" style="margin-top: 10rem">
+		<div class="offcanvas-body d-flex flex-column mx-5" style="margin: auto 200px">
+			<div class="authentication" style="width: 500px; margin: auto;">
+				<!-- Pills navs -->
+				<ul class="nav nav-pills nav-justified mb-3" id="pills-tab" role="tablist" style="gap:100px;">
+					<li class="nav-item " role="presentation" style="border: 1px solid; border-radius: 5px;">
+						<a class="nav-link  active" id="tab-login" data-bs-toggle="pill" data-bs-target="#pills-login"
+							 href="#pills-login" role="tab" aria-controls="pills-login" aria-selected="true">Login</a>
+					</li>
+					<li class="nav-item" role="presentation" style=" border: 1px solid; border-radius: 5px;">
+						<a class="nav-link" id="tab-register" data-bs-toggle="pill" data-bs-target="#pills-register"
+							 href="#pills-register" role="tab" aria-controls="pills-register"
+							 aria-selected="false">Register</a>
+					</li>
+				</ul>
+				<!-- Pills navs -->
+
+				<!-- Pills content -->
+				<div class="tab-content" id="myTabContent">
+					<div class="tab-pane fade show active" id="pills-login" role="tabpanel" aria-labelledby="tab-login" style="margin-top:40px;">
+						<form class="login" name="login"> <!-- th:action="@{/api/public/home}" method="post" -->
+<!--							<div class="text-center mb-3">-->
+<!--								<p>Sign in with:</p>-->
+<!--								<button type="button" class="btn text-primary btn-floating mx-1">-->
+<!--									<i class="fab fa-facebook-f"></i>-->
+<!--								</button>-->
+
+<!--								<button type="button" class="btn text-primary btn-floating mx-1">-->
+<!--									<i class="fab fa-google"></i>-->
+<!--								</button>-->
+
+<!--								<button type="button" class="btn text-primary btn-floating mx-1">-->
+<!--									<i class="fab fa-twitter"></i>-->
+<!--								</button>-->
+
+<!--								<button type="button" class="btn text-primary btn-floating mx-1">-->
+<!--									<i class="fab fa-github"></i>-->
+<!--								</button>-->
+<!--							</div>-->
+
+							<!-- Email input -->
+							<div class="form-outline mb-4 form-floating">
+								<input type="email" id="loginName" name="username" class="form-control"
+											 placeholder="ex@mail.com" />
+								<label class="form-label" for="loginName">Email</label>
+							</div>
+
+							<!-- Password input -->
+							<div class="form-outline mb-4 form-floating">
+								<input type="password" id="loginPassword" name="password" class="form-control"
+											 placeholder="Password" />
+								<label class="form-label" for="loginPassword">Password</label>
+							</div>
+
+							<!-- 2 column grid layout -->
+							<div class="row mb-4">
+								<div class="col-md-6 d-flex justify-content-center">
+									<!-- Checkbox -->
+									<div class="form-check mb-3 mb-md-0">
+										<input class="form-check-input input-primary" type="checkbox" value=""
+													 id="loginCheck" checked />
+										<label class="form-check-label" for="loginCheck"> Remember me </label>
+									</div>
+								</div>
+
+								<div class="col-md-6 d-flex justify-content-center">
+									<!-- Simple link -->
+									<a href="#!" class="text-primary">Forgot password?</a>
+								</div>
+							</div>
+
+							<div style="display: none;" id="login_fail" class="alert alert-danger text-center">
+								Invalid username or password
+							</div>
+
+							<div class="text-center">
+								<!-- Submit button -->
+								<button type="submit" class="btn text-white bg-primary btn-block mb-4" style="width: 100% !important;">Sign in</button>
+							</div>
+						</form>
+					</div>
+					<div class="tab-pane fade" id="pills-register" role="tabpanel" aria-labelledby="tab-register">
+						<form action="#" method="post" th:object="${user}" class="register" name="register">
+							<div class="text-center mb-3">
+								<p>Sign up with:</p>
+								<button type="button" class="btn text-primary btn-floating mx-1">
+									<i class="fab fa-facebook-f"></i>
+								</button>
+
+								<button type="button" class="btn text-primary btn-floating mx-1">
+									<i class="fab fa-google"></i>
+								</button>
+
+								<button type="button" class="btn text-primary btn-floating mx-1">
+									<i class="fab fa-twitter"></i>
+								</button>
+
+								<button type="button" class="btn text-primary btn-floating mx-1">
+									<i class="fab fa-github"></i>
+								</button>
+							</div>
+
+							<!-- Name input -->
+							<div class="form-outline mb-3 form-floating">
+								<input type="text" id="registerName" name="name" class="form-control" placeholder="Name"
+											 required="true" />
+								<label class="form-label" for="registerName">Name</label>
+								<div class="invalid-feedback" id="invalid-name">
+								</div>
+							</div>
+
+							<!-- Email input -->
+							<div class="form-outline mb-3 form-floating">
+								<input type="email" id="registerEmail" name="email" class="form-control"
+											 placeholder="ex@mail.com" required="true" />
+								<label class="form-label" for="registerEmail">Email</label>
+								<div class="invalid-feedback" id="invalid-email">
+								</div>
+							</div>
+
+							<!-- Password input -->
+							<div class="form-outline mb-3 form-floating">
+								<input type="password" id="registerPassword" name="password" class="form-control"
+											 placeholder="Password" required="true" />
+								<label class="form-label" for="registerPassword">Password</label>
+								<div class="invalid-feedback" id="invalid-password">
+								</div>
+							</div>
+
+							<!-- Repeat Password input -->
+							<div class="form-outline mb-3 form-floating">
+								<input type="password" id="registerRepeatPassword" class="form-control"
+											 name="repeatPassword" placeholder="Repeat Password" required="true" />
+								<label class="form-label" for="registerRepeatPassword">Repeat password</label>
+							</div>
+
+							<!-- About input -->
+							<div class="form-outline mb-3">
+								<textarea name="about" class="form-control" id="registerAbout" rows="3"
+													placeholder="Enter Something about yourself"></textarea>
+								<div class="invalid-feedback" id="invalid-about">
+								</div>
+							</div>
+
+							<div class="alert text-center register-alert" role="alert" style="display: none;">
+							</div>
+							<!-- Checkbox -->
+							<div class="form-check d-flex justify-content-center mb-2">
+								<input class="form-check-input input-primary me-2" type="checkbox" required="true"
+											 name="agreement" id="registerCheck" checked
+											 aria-describedby="registerCheckHelpText" />
+								<label class="form-check-label" for="registerCheck">
+									I have read and agree to the terms
+								</label>
+							</div>
+
+							<div class="text-center">
+								<!-- Submit button -->
+								<button type="submit" class="btn bg-primary text-white  mb-3" style="width: 100% !important;">Sign Up</button>
+								<button type="reset" class="btn btn-warning text-white  mb-3" style="width: 100% !important;">Reset</button>
+							</div>
+						</form>
+					</div>
+				</div>
+				<!-- Pills content -->
+			</div>
+			<!-- authentication div -->
+			<!-- loading -->
+			<div class="text-center d-flex align-items-center justify-content-center" style="flex:1;">
+				<div class="spinner-grow text-primary hidden" role="status" >
+					<span class="visually-hidden">Loading...</span>
+				</div>
+			</div>
+
+			<div class="hidden" id="login_success"></div>
+		</div>
+</section>
+
+</body>
+</html>
