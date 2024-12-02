@@ -1,66 +1,144 @@
-// if (window.PublicKeyCredential) {
-//   console.log('supports fingerprint')
-//   // do your webauthn stuff
-// } else {
-//   // wah-wah, back to passwords for you
-// }
-//
-// const addFingerPrintButton = document.getElementById('addFingerPrintButton');
-//
-// addFingerPrintButton.addEventListener('click', async () => {
-//   console.log('Inside addFingerPrintButton event listener');
-//   const data = await navigator.credentials.create(options);
-//   console.log(data);
-// });
+const utf8Decoder = new TextDecoder('utf-8');
+
 const registerForm = document.querySelector('.register');
-
 const addFingerPrintButton = document.getElementById('addFingerPrintButton');
+const fingerprintDiv = document.getElementById('fingerprintDiv');
+var publicKeyBytesData, credentialIdData, correspondingCredentailId;
 
-addFingerPrintButton.addEventListener('click', async () => {
-  console.log('Inside addFingerPrintButton event listener');
+function removeFingerprint(e) {
+  e.preventDefault();
+  addFingerPrintButton.disabled = false;
+  addFingerPrintButton.classList.remove('disabled');
+  publicKeyBytesData = null;
+  credentialIdData = null;
+  correspondingCredentailId = null;
+}
+
+function addFingerPrintIdentifierOnUi(id) {
+  const div = document.createElement('div');
+  const span = document.createElement('span');
+  const button = document.createElement('button');
+
+  div.classList.add('d-flex', 'justify-content-between');
+  span.classList.add('col-6', 'text-truncate');
+  button.classList.add('btn','alert-danger', 'btn-sm', 'py-0', 'px-2');
+
+  span.innerHTML = id;
+  span.name = "fingerprint";
+  button.id="removeFingerprintButton";
+  button.textContent = "x";
+
+  button.addEventListener('click', removeFingerprint);
+
+  div.insertAdjacentElement('beforeend', span);
+  div.insertAdjacentElement('beforeend', button);
+  fingerprintDiv?.insertAdjacentElement('beforeend', div);
+}
+
+
+async function askForFingerprint() {
+  const email = document.getElementById('registerEmail');
+  const name = document.getElementById('registerName');
+  
+  if (!window.PublicKeyCredential) {
+    alert('Fingerprint is not supported')
+    return;
+  }
+
+  if(!name || !name.value) {
+    alert('Please enter name');
+    return;
+  }
+
+  if(!email || !email.value) {
+    alert('Please enter email address');
+    return;
+  }
+
+  //disabling add button
+  this.disabled = true;
+  this.classList.add('disabled');
+
   const options = {
     publicKey: {
-      rp: { id: "localhost" , name: ""},
+      rp: {id: "localhost", name: ""},
       user: {
-        id: new Uint8Array(16),
-        name: "carina.p.anand@example.com",
-        displayName: "Carina P. Anand",
+        id: new Uint8Array(16), name: email?.value, displayName: name?.value,
       },
-      pubKeyCredParams: [
-        {
-          type: "public-key",
-          alg: -7,
-        },
-        {
-          type: "public-key",
-          alg: -257,
-        }
-      ],
+      pubKeyCredParams: [{
+        type: "public-key", alg: -7,
+      }, {
+        type: "public-key", alg: -257,
+      }],
       timeout: 60000,
-      challenge: new Uint8Array([
-        // must be a cryptographically random number sent from a server
-        0x8c, 0x0a, 0x26, 0xff, 0x22, 0x91, 0xc1, 0xe9, 0xb9, 0x4e, 0x2e, 0x17, 0x1a,
-        0x98, 0x6a, 0x73, 0x71, 0x9d, 0x43, 0x48, 0xd5, 0xa7, 0x6a, 0x15, 0x7e, 0x38,
-        0x94, 0x52, 0x77, 0x97, 0x0f, 0xef,
-      ]).buffer,
-      authenticatorSelection: {}
+      challenge: Uint8Array.from("randomString", c => c.charCodeAt(0)),
+      attestation: "direct"
     }
-  };
+  }
 
-  const data = await navigator.credentials.create(options);
-  console.log(data);
-});
+  try {
+    const credential = await navigator.credentials.create(options);
+    const decodedClientData = utf8Decoder.decode(credential.response.clientDataJSON);
+    // parse the string as an object
+    const clientDataObj = JSON.parse(decodedClientData);
+    const decodedAttestationObj = CBOR.decode(credential.response.attestationObject);
+    const { authData } = decodedAttestationObj;
 
-async function loginFingerprint(e) {
+    // get the length of the credential ID
+    const dataView = new DataView(new ArrayBuffer(2));
+    const idLenBytes = authData.slice(53, 55);
+
+    idLenBytes.forEach((value, index) => dataView.setUint8(index, value));
+
+    const credentialIdLength = dataView.getUint16();
+
+    // get the credential ID
+    const credentialId = authData.slice(55, 55 + credentialIdLength);
+
+    // get the public key object
+    const publicKeyBytes = authData.slice(55 + credentialIdLength);
+
+    // the publicKeyBytes are encoded again as CBOR
+    const publicKeyObject = CBOR.decode(publicKeyBytes.buffer);
+
+    credentialIdData = credentialId;
+    publicKeyBytesData = publicKeyBytes;
+    correspondingCredentailId = credential.id;
+    
+    addFingerPrintIdentifierOnUi(credential.id);
+  } catch (e) {
+    console.log(e);
+    this.disabled = false;
+    addFingerPrintButton.classList.remove('disabled');
+    credentialIdData = null;
+    publicKeyBytesData = null;
+    correspondingCredentailId = null;
+  }
+}
+
+async function register(e) {
   e.preventDefault();
   const data = {
     name: this.name.value,
     email: this.email.value,
     password: this.password.value,
-    about: this.about.value
+    about: this.about.value,
+    credentialId: credentialIdData || '',
+    publicKeyBytes: publicKeyBytesData || ''
   };
   const repeatPassoword = this.repeatPassword.value;
   const agreement = this.agreement.value;
+
+  if(!correspondingCredentailId) {
+    alert('Fingerprint is required');
+    return;
+  }
+
+  if(!credentialIdData  || !publicKeyBytesData) {
+    alert('Fingerprint is not saved properly');
+    return;
+  }
+
   removeValidation();
   document.querySelector('.authentication').style.display = 'none';
   document.querySelector('.register-alert').style.display = 'none';
@@ -94,7 +172,7 @@ async function loginFingerprint(e) {
     document.querySelector('.register-alert').textContent = message[0].content;
   } else if (response.status === 400) {
     message.forEach(msg => {
-      document.forms['loginFingerprint'][msg.name].classList.add('is-invalid');
+      document.forms['register'][msg.name].classList.add('is-invalid');
       document.querySelector('#invalid-' + msg.name).innerHTML = msg.content;
     })
   } else {
@@ -104,8 +182,17 @@ async function loginFingerprint(e) {
   }
 }
 
-registerForm?.addEventListener('submit', loginFingerprint);
+function removeValidation() {
+  const attr = ['name', 'email', 'password', 'about'];
+  attr.forEach(attr => {
+    document.forms['register'][attr].classList.remove('is-invalid');
+    document.querySelector('#invalid-' + attr).innerHTML = '';
+  })
+}
+
+registerForm?.addEventListener('submit', register);
 registerForm?.addEventListener('reset', removeValidation);
+addFingerPrintButton?.addEventListener('click', askForFingerprint);
 
 
 

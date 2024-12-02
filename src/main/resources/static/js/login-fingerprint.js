@@ -41,13 +41,5 @@ async function login(e) {
 
 }
 
-function removeValidation() {
-	const attr = ['name', 'email', 'password', 'about'];
-	attr.forEach(attr => {
-		document.forms['loginFingerprint'][attr].classList.remove('is-invalid');
-		document.querySelector('#invalid-' + attr).innerHTML = '';
-	})
-}
-
 loginForm?.addEventListener('submit', login);
 
