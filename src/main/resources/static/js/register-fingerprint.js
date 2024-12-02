@@ -171,15 +171,12 @@ async function register(e) {
   console.log(response);
   const message = await response.json();
 
-
   setTimeout(() => {
     document.querySelector('.authentication').style.display = 'block';
     document.querySelector('.spinner-grow').classList.add('hidden');
   }, 1500);
 
-
-
-  if (response.status >= 301 || response.status <= 399) {
+  if (response.status >= 301 && response.status <= 399) {
     document.querySelector('.register-alert').style.display = 'block';
     document.querySelector('.register-alert').classList.add('alert-success');
     document.querySelector('.register-alert').textContent = "Registered Succesfully :)";
@@ -189,6 +186,7 @@ async function register(e) {
     document.querySelector('.register-alert').classList.add('alert-warning');
     document.querySelector('.register-alert').textContent = message[0].content;
   } else if (response.status === 400) {
+    console.log('Inside BAD REQUEST')
     message.forEach(msg => {
       document.forms['register'][msg.name].classList.add('is-invalid');
       document.querySelector('#invalid-' + msg.name).innerHTML = msg.content;
