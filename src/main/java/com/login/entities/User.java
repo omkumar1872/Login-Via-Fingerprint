@@ -1,5 +1,6 @@
 package com.login.entities;
 
+import java.util.Base64;
 import java.util.List;
 
 import jakarta.persistence.Column;
@@ -8,6 +9,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -19,7 +21,10 @@ public class User {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private int id;
-    @NotBlank(message = "Please provide a name")
+	@NotBlank
+	@NotNull(message = "UUID can't be NULL")
+	private String uuid;
+	@NotBlank(message = "Please provide a name")
 	@NotNull(message = "Name can't be NULL")
 	@Size(min=2, max=20, message = "Name should be in between 2 to 20 characters")
 	private String name;
@@ -28,11 +33,18 @@ public class User {
 	@NotNull(message = "Email can't be null")
 	@NotBlank(message="Please provide a email")
 	private String email;
+
 	@NotNull(message = "Password can't be null")
 	@NotBlank(message="Please provide a password")
 	@Size(min=8, message = "Password should be of minimum 8 characters")
 	private String password;
-	private String fingerPrintSecret;
+
+	@Column(name = "credential_id")
+	private String credentialId;
+
+	@Column(name = "public_key_bytes")
+	private String publicKeyBytes;
+
 	private String role;
 	private boolean enabled;
 	private String imageURl;
@@ -44,13 +56,14 @@ public class User {
 		// TODO Auto-generated constructor stub
 	}
 
-	public User(int id,
+	public User(int id, @NotBlank(message = "UUID not generated") @NotNull(message = "UUID can't be NULL") String uuid,
 			@NotBlank(message = "Please provide a name") @NotNull(message = "Name can't be NULL") @Size(min = 2, max = 20, message = "Name should be in between 2 to 20 characters") String name,
 			@Email(message = "Should be a valid email format") @NotNull(message = "Email can't be null") @NotBlank(message = "Please provide a email") String email,
 			@NotNull(message = "Password can't be null") @NotBlank(message = "Please provide a password") @Size(min = 8, max = 20, message = "Password should be in between 8 to 20 characters") String password,
 			String role, boolean enabled, String imageURl, String about) {
 		super();
 		this.id = id;
+		this.uuid = uuid;
 		this.name = name;
 		this.email = email;
 		this.password = password;
@@ -116,12 +129,44 @@ public class User {
 		this.imageURl = imageURl;
 	}
 
+	public @NotBlank @NotNull(message = "UUID can't be NULL") String getUuid() {
+		return uuid;
+	}
+
+	public void setUuid(@NotBlank @NotNull(message = "UUID can't be NULL") String uuid) {
+		this.uuid = uuid;
+	}
+
+	public String getCredentialId() {
+		return credentialId;
+	}
+
+	public void setCredentialId(String credentialId) {
+		this.credentialId = credentialId;
+	}
+
+	public String getPublicKeyBytes() {
+		return publicKeyBytes;
+	}
+
+	public void setPublicKeyBytes(String publicKeyBytes) {
+		this.publicKeyBytes = publicKeyBytes;
+	}
+
 	public String getAbout() {
 		return about;
 	}
 
 	public void setAbout(String about) {
 		this.about = about;
+	}
+
+	public byte[] getPublicKeyBytes(String publicKeyBytesBase64) {
+		return Base64.getDecoder().decode(publicKeyBytesBase64);
+	}
+
+	public byte[] getCredentialId(String credentialIdBase64) {
+		return Base64.getDecoder().decode(credentialIdBase64);
 	}
 
 	@Override

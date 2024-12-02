@@ -3,7 +3,14 @@ const utf8Decoder = new TextDecoder('utf-8');
 const registerForm = document.querySelector('.register');
 const addFingerPrintButton = document.getElementById('addFingerPrintButton');
 const fingerprintDiv = document.getElementById('fingerprintDiv');
-var publicKeyBytesData, credentialIdData, correspondingCredentailId;
+var publicKeyBytesData, credentialIdData, correspondingCredentialId, uuidGenerated;
+
+//This string must be passed as an env variable and also use the same string on server end
+const challengeString = 'challengeString';
+
+function uint8ArrayToBase64(uint8Array) {
+  return btoa(String.fromCharCode.apply(null, uint8Array));
+}
 
 function removeFingerprint(e) {
   e.preventDefault();
@@ -11,7 +18,8 @@ function removeFingerprint(e) {
   addFingerPrintButton.classList.remove('disabled');
   publicKeyBytesData = null;
   credentialIdData = null;
-  correspondingCredentailId = null;
+  correspondingCredentialId = null;
+  uuidGenerated = null;
 }
 
 function addFingerPrintIdentifierOnUi(id) {
@@ -59,11 +67,15 @@ async function askForFingerprint() {
   this.disabled = true;
   this.classList.add('disabled');
 
+  uuidGenerated = self.crypto.randomUUID();
+
   const options = {
     publicKey: {
       rp: {id: "localhost", name: ""},
       user: {
-        id: new Uint8Array(16), name: email?.value, displayName: name?.value,
+        id: Uint8Array.from(uuidGenerated, c => c.charCodeAt(0)),
+        name: email?.value,
+        displayName: name?.value,
       },
       pubKeyCredParams: [{
         type: "public-key", alg: -7,
@@ -71,7 +83,7 @@ async function askForFingerprint() {
         type: "public-key", alg: -257,
       }],
       timeout: 60000,
-      challenge: Uint8Array.from("randomString", c => c.charCodeAt(0)),
+      challenge: Uint8Array.from(challengeString, c => c.charCodeAt(0)),
       attestation: "direct"
     }
   }
@@ -82,7 +94,9 @@ async function askForFingerprint() {
     // parse the string as an object
     const clientDataObj = JSON.parse(decodedClientData);
     const decodedAttestationObj = CBOR.decode(credential.response.attestationObject);
+
     const { authData } = decodedAttestationObj;
+    const { challenge } = clientDataObj; // this is the challenge we sent to the authenticator we can match it [Optional]
 
     // get the length of the credential ID
     const dataView = new DataView(new ArrayBuffer(2));
@@ -100,10 +114,13 @@ async function askForFingerprint() {
 
     // the publicKeyBytes are encoded again as CBOR
     const publicKeyObject = CBOR.decode(publicKeyBytes.buffer);
+    console.log({
+      credentialId, publicKeyBytes
+    })
 
     credentialIdData = credentialId;
     publicKeyBytesData = publicKeyBytes;
-    correspondingCredentailId = credential.id;
+    correspondingCredentialId = credential.id;
     
     addFingerPrintIdentifierOnUi(credential.id);
   } catch (e) {
@@ -112,7 +129,7 @@ async function askForFingerprint() {
     addFingerPrintButton.classList.remove('disabled');
     credentialIdData = null;
     publicKeyBytesData = null;
-    correspondingCredentailId = null;
+    correspondingCredentialId = null;
   }
 }
 
@@ -123,13 +140,14 @@ async function register(e) {
     email: this.email.value,
     password: this.password.value,
     about: this.about.value,
-    credentialId: credentialIdData || '',
-    publicKeyBytes: publicKeyBytesData || ''
+    uuid: uuidGenerated || self.crypto.randomUUID(),
+    credentialId: uint8ArrayToBase64(credentialIdData),
+    publicKeyBytes: uint8ArrayToBase64(publicKeyBytesData)
   };
   const repeatPassoword = this.repeatPassword.value;
   const agreement = this.agreement.value;
 
-  if(!correspondingCredentailId) {
+  if(!correspondingCredentialId) {
     alert('Fingerprint is required');
     return;
   }
