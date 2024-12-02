@@ -114,9 +114,6 @@ async function askForFingerprint() {
 
     // the publicKeyBytes are encoded again as CBOR
     const publicKeyObject = CBOR.decode(publicKeyBytes.buffer);
-    console.log({
-      credentialId, publicKeyBytes
-    })
 
     credentialIdData = credentialId;
     publicKeyBytesData = publicKeyBytes;
