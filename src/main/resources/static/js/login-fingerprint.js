@@ -46,8 +46,7 @@ async function doFingerPrintLogin() {
 		allowCredentials: [{
 			id: Uint8Array.from(
 				user.credentialId, c => c.charCodeAt(0)),
-			type: 'public-key',
-			transports: ['usb', 'ble', 'nfc'],
+			type: 'public-key'
 		}],
 		timeout: 60000,
 	}

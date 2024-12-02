@@ -9,7 +9,7 @@ import jakarta.validation.constraints.Size;
 public class UserInfo {
 	private String name;
 	private String email;
-	private String credentialId;
+	private byte[] credentialId;
 	private String role;
 	private boolean enabled;
 	private String imageURl;
@@ -23,7 +23,7 @@ public class UserInfo {
 		return email;
 	}
 
-	public String getCredentialId() {
+	public byte[] getCredentialId() {
 		return credentialId;
 	}
 
@@ -51,7 +51,7 @@ public class UserInfo {
 		this.email = email;
 	}
 
-	public void setCredentialId(String credentialId) {
+	public void setCredentialId(byte[] credentialId) {
 		this.credentialId = credentialId;
 	}
 

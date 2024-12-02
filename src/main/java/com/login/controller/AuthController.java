@@ -140,7 +140,7 @@ public class AuthController{
 		UserInfo userInfo = new UserInfo();
 		userInfo.setName(user.getName());
 		userInfo.setEmail(user.getEmail());
-		userInfo.setCredentialId("testID");
+		userInfo.setCredentialId(user.getCredentialIdUint8Array(user.getCredentialId()));
 		userInfo.setRole(user.getRole());
 		userInfo.setEnabled(user.isEnabled());
 		userInfo.setImageURl(user.getImageURl());

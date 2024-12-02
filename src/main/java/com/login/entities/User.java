@@ -161,11 +161,11 @@ public class User {
 		this.about = about;
 	}
 
-	public byte[] getPublicKeyBytes(String publicKeyBytesBase64) {
+	public byte[] getPublicKeyBytesUint8Array(String publicKeyBytesBase64) {
 		return Base64.getDecoder().decode(publicKeyBytesBase64);
 	}
 
-	public byte[] getCredentialId(String credentialIdBase64) {
+	public byte[] getCredentialIdUint8Array(String credentialIdBase64) {
 		return Base64.getDecoder().decode(credentialIdBase64);
 	}
 
