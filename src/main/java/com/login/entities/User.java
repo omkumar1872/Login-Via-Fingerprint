@@ -32,6 +32,7 @@ public class User {
 	@NotBlank(message="Please provide a password")
 	@Size(min=8, message = "Password should be of minimum 8 characters")
 	private String password;
+	private String fingerPrintSecret;
 	private String role;
 	private boolean enabled;
 	private String imageURl;
