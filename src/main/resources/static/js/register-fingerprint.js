@@ -82,6 +82,10 @@ async function askForFingerprint() {
       }, {
         type: "public-key", alg: -257,
       }],
+      authenticatorSelection: {
+        authenticatorAttachment: "platform",
+        userVerification: "required"
+      },
       timeout: 60000,
       challenge: Uint8Array.from(challengeString, c => c.charCodeAt(0)),
       attestation: "direct"

@@ -7,8 +7,10 @@ if(isNativeLogin === false) {
 	document.getElementById('login_password').style.display = 'none';
 }
 
-async function doFingerPrintLogin() {
+async function doFingerPrintLogin(e) {
+	e.preventDefault();
 	const email = document.getElementById('loginName');
+	console.log("login fingerprint");
 	// const name = document.getElementById('registerName');
 
 	if (!window.PublicKeyCredential) {
@@ -25,35 +27,38 @@ async function doFingerPrintLogin() {
 		alert('Please enter email address');
 		return;
 	}
-
-	const user = await fetch(`/api/public/user?email=${email.value}`, {
+	console.log("get user");
+	const responseUser = await fetch(`/api/public/user?email=${encodeURIComponent(email.value)}`, {
 		method: "GET",
 		headers: {
 			"Content-Type": "application/json"
 		}
 	}).then(res => { return res });
 
-	console.log("user" + user);
-
-	//disabling add button
-	this.disabled = true;
-	this.classList.add('disabled');
-
-
+	const user = await responseUser.json();
+	console.log(user);
+	
 
 	const options = {
-		challenge: Uint8Array.from("randomString", c => c.charCodeAt(0)),
-		allowCredentials: [{
-			id: Uint8Array.from(
-				user.credentialId, c => c.charCodeAt(0)),
-			type: 'public-key'
-		}],
-		timeout: 60000,
+		publicKey: {
+			rpId:"localhost",
+			challenge: Uint8Array.from(self.crypto.randomUUID(), c => c.charCodeAt(0)),
+			allowCredentials: [{
+				id: new Uint8Array(atob(user.credentialId).split("").map(c => c.charCodeAt(0))),
+				type: 'public-key'
+			}],
+			timeout: 60000,
+			userVerification: "required",
+			authenticatorAttachment: "platform"
+		}
 	}
 
+	console.log(JSON.stringify(options));
 	try {
+		console.log("assert  ");
 		const assertion = await navigator.credentials.get(options);
-		console.log(assertion);
+		console.log("assertion "+assertion);
+		await login(assertion);
 
 	} catch (e) {
 		console.log(e);
@@ -62,11 +67,26 @@ async function doFingerPrintLogin() {
 
 
 
-async function login(e) {
-	e.preventDefault();
+async function login(assertion) {
+	// e.preventDefault();
+	const email = document.getElementById('loginName');
 	const data = {
-		username: this.username.value,
-		password: this.password.value,
+		username: email.value,
+		password: '',
+		isNativeLogin: false,
+		assertionResponse : {
+			id: assertion.id,
+			rawId: Array.from(new Uint8Array(assertion.rawId)), // Convert to an array
+			type: assertion.type,
+			response: {
+				clientDataJSON: Array.from(new Uint8Array(assertion.response.clientDataJSON)),
+				authenticatorData: Array.from(new Uint8Array(assertion.response.authenticatorData)),
+				signature: Array.from(new Uint8Array(assertion.response.signature)),
+				userHandle: assertion.response.userHandle
+					? Array.from(new Uint8Array(assertion.response.userHandle))
+					: null
+			}
+		}
 	};
 
 	document.querySelector("#login_fail").style.display = "none";
@@ -74,7 +94,7 @@ async function login(e) {
 	document.querySelector('.spinner-grow').classList.remove('hidden');
 	document.querySelector('.authentication').style.display = 'none';
 	document.querySelector("#login_success").style.display='none';
-	const response = await fetch(`/login?username=${data.username}&password=${data.password}`, {
+	const response = await fetch(`/api/public/login`, {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json"
@@ -88,11 +108,13 @@ async function login(e) {
 		document.querySelector('.spinner-grow').classList.add('hidden');
 	}, 1500);
 
-	if (response.status === 200) {
+	if (response.status === 200 || response.status === 202) {
 		document.querySelector("#login_success").style.display = "block";
-		setTimeout(() => {
-			location.href = response.url;
-		}, 1000);
+		// location.href = message;
+		// console.log("login success");
+		// setTimeout(() => {
+		// 	location.href = message;
+		// }, 1000);
 	} else if (response.status === 401) {
 		document.querySelector("#login_fail").style.display = "block";
 		document.querySelector("#login_fail").innerHTML = message;

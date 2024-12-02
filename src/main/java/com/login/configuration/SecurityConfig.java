@@ -48,7 +48,7 @@ public class SecurityConfig {
 			}).formLogin(login -> {
 				login.loginPage("/api/login")
 				.loginProcessingUrl("/login")
-				.defaultSuccessUrl("/api/user/index")
+				.defaultSuccessUrl("/api/user/index", true)
 				.failureUrl("/api/public/login_fail")
 				.permitAll();
 			});

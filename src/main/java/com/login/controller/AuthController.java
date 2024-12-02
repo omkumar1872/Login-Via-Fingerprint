@@ -1,8 +1,11 @@
 package com.login.controller;
 
+import java.security.Signature;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
+import com.login.vo.LoginRequest;
 import com.login.vo.UserInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,31 +99,37 @@ public class AuthController{
 	}
 	
 	@PostMapping("/login")
-	public ResponseEntity<List<Message>> login(@RequestBody User user ,@RequestParam(value = "agreement", defaultValue = "false") boolean rememberMe, Model model) {
+	public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest , @RequestParam(value = "agreement", defaultValue = "false") boolean rememberMe, Model model) {
 		List<Message> msgList = new ArrayList<Message>();
 
-		if(user.getEmail() == null || user.getEmail().isEmpty())
-			return new ResponseEntity<List<Message>>(msgList, HttpStatus.BAD_REQUEST);
+		if(loginRequest.getUsername() == null || loginRequest.getUsername().isEmpty())
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		try {
-			User result = userRepository.findByEmail(user.getEmail());
+			User result = userRepository.findByEmail(loginRequest.getUsername());
 			if (result == null) {
 				throw new Exception("User Not Found");
-			} else if (!passwordEncoder.matches(user.getPassword(), result.getPassword())) {
+			}
+
+			if(!result.getCredentialId().contains(loginRequest.getAssertionResponse().getId())) {
 				throw new Exception("Invalid Password");
 			}
+
+			// TODO Verify signature
+
+
 		} catch (Exception e2) {
 			// TODO: handle exception
 			System.err.println("Error: "+e2.getMessage());
 			e2.printStackTrace();
 			if (e2.getMessage().equals("Email Already Registered")) {
 				msgList.add(new Message("email", e2.getMessage()));
-				return new ResponseEntity<List<Message>>(msgList, HttpStatus.BAD_REQUEST);
+				return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 			} else {
 				msgList.add(new Message("default", e2.getMessage()));
-				return new ResponseEntity<List<Message>>(msgList, HttpStatus.NOT_ACCEPTABLE);
+				return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
 			}
 		}
-		return new ResponseEntity<List<Message>>(new ArrayList<Message>(),HttpStatus.ACCEPTED);
+		return new ResponseEntity<String>("/api/user/index",HttpStatus.ACCEPTED);
 	}
 	
 	@GetMapping("/login_fail")
