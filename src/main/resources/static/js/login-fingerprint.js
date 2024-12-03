@@ -37,7 +37,7 @@ async function doFingerPrintLogin(e) {
 
 	const user = await responseUser.json();
 	console.log(user);
-	
+
 
 	const options = {
 		publicKey: {
@@ -110,8 +110,8 @@ async function login(assertion) {
 
 	if (response.status === 200 || response.status === 202) {
 		document.querySelector("#login_success").style.display = "block";
-		// location.href = message;
-		// console.log("login success");
+		alert("Login Successful");
+		console.log("login success");
 		// setTimeout(() => {
 		// 	location.href = message;
 		// }, 1000);
