@@ -1,10 +1,14 @@
 package com.login.controller;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.security.Signature;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.Map;
 
+import com.login.helper.Helper;
 import com.login.vo.LoginRequest;
 import com.login.vo.UserInfo;
 import org.slf4j.Logger;
@@ -149,11 +153,62 @@ public class AuthController{
 		UserInfo userInfo = new UserInfo();
 		userInfo.setName(user.getName());
 		userInfo.setEmail(user.getEmail());
-		userInfo.setCredentialId(user.getCredentialIdUint8Array(user.getCredentialId()));
+		userInfo.setCredentialId(Helper.base64ToByteArray(user.getCredentialId()));
 		userInfo.setRole(user.getRole());
 		userInfo.setEnabled(user.isEnabled());
 		userInfo.setImageURl(user.getImageURl());
 		userInfo.setAbout(user.getAbout());
 		return new ResponseEntity<>(userInfo, HttpStatus.OK);
 	}
+
+//	@PostMapping("/verify")
+//	public ResponseEntity<List<Message>> verifySignature(@RequestBody Map<String, String> requestData, @RequestParam(value = "agreement", defaultValue = "false") boolean agreement) {
+//		List<Message> msgList = new ArrayList<Message>();
+//		String email = requestData.get("email");
+//		String signatureBase64 = requestData.get("signature");
+//		String userHandleBase64 = requestData.get("userHandle");
+//		String clientDataJSONBase64 = requestData.get("clientDataJSON");
+//		String authenticatorDataBase64 = requestData.get("authenticatorData");
+//
+//		byte[] signature = Helper.base64ToByteArray(signatureBase64);
+//		User user = userRepository.findByEmail(email);
+//
+//		if(user == null) {
+//			msgList.add(new Message("default", "User Not Found"));
+//			return new ResponseEntity<List<Message>>(msgList, HttpStatus.NOT_FOUND);
+//		}
+//
+//		if(signature == null ) {
+//			msgList.add(new Message("default", "Signature Not Present"));
+//			return new ResponseEntity<List<Message>>(msgList, HttpStatus.BAD_REQUEST);
+//		}
+//
+//		try {
+//	//		byte[] publicKey = Helper.base64ToByteArray(user.getPublicKeyBytes());
+//			byte[] authenticatorDataBytes = Helper.base64ToByteArray(authenticatorDataBase64);
+//			byte[] clientDataJSONBytes = Helper.base64ToByteArray(clientDataJSONBase64);
+//
+//			String clientDataJSONString = new String(clientDataJSONBytes, StandardCharsets.UTF_8);
+//
+//			MessageDigest digest = MessageDigest.getInstance("SHA-256");
+//			byte[] hashedClientDataJSON = digest.digest(clientDataJSONString.getBytes(StandardCharsets.UTF_8));
+//			byte[] signedData = new byte[authenticatorDataBytes.length + hashedClientDataJSON.length];
+//			System.arraycopy(authenticatorDataBytes, 0, signedData, 0, authenticatorDataBytes.length);
+//			System.arraycopy(hashedClientDataJSON, 0, signedData, authenticatorDataBytes.length, hashedClientDataJSON.length);
+//
+//			boolean signatureIsValid = Helper.verifySignature(Helper.getPublicKeyFromBase64(user.getPublicKeyBytes()), signature, signedData);
+//
+////			boolean result = user.verifySignature(signature, publicKey, data);
+//			if(signatureIsValid) {
+//				msgList.add(new Message("default", "Signature Verified"));
+//				return new ResponseEntity<List<Message>>(msgList, HttpStatus.OK);
+//			} else {
+//				msgList.add(new Message("default", "Signature Verification Failed"));
+//				return new ResponseEntity<List<Message>>(msgList, HttpStatus.NOT_ACCEPTABLE);
+//			}
+//		} catch (Exception e) {
+//			msgList.add(new Message("default", e.getMessage()));
+//			return new ResponseEntity<List<Message>>(msgList, HttpStatus.NOT_ACCEPTABLE);
+//		}
+//	}
 }
