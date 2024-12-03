@@ -161,14 +161,6 @@ public class User {
 		this.about = about;
 	}
 
-	public byte[] getPublicKeyBytesUint8Array(String publicKeyBytesBase64) {
-		return Base64.getDecoder().decode(publicKeyBytesBase64);
-	}
-
-	public byte[] getCredentialIdUint8Array(String credentialIdBase64) {
-		return Base64.getDecoder().decode(credentialIdBase64);
-	}
-
 	@Override
 	public String toString() {
 		return "User [id=" + id + ", name=" + name + ", email=" + email + ", password=" + password + ", role=" + role
