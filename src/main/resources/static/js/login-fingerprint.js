@@ -7,6 +7,20 @@ if(isNativeLogin === false) {
 	document.getElementById('login_password').style.display = 'none';
 }
 
+function base64ToUint8Array(base64) {
+	return new Uint8Array(atob(base64).split('').map(char => char.charCodeAt(0)));
+}
+
+function arrayBufferToBase64(buffer) {
+	let binary = '';
+	const bytes = new Uint8Array(buffer);
+	const len = bytes.byteLength;
+	for (let i = 0; i < len; i++) {
+		binary += String.fromCharCode(bytes[i]);
+	}
+	return window.btoa(binary);
+}
+
 async function doFingerPrintLogin(e) {
 	e.preventDefault();
 	const email = document.getElementById('loginName');
@@ -49,7 +63,10 @@ async function doFingerPrintLogin(e) {
 			}],
 			timeout: 60000,
 			userVerification: "required",
-			authenticatorAttachment: "platform"
+      authenticatorSelection: {
+        authenticatorAttachment: "platform"
+      },
+      attestation: "direct"
 		}
 	}
 
